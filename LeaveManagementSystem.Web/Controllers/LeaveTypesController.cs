@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LeaveManagementSystem.Web.Data;
-using AutoMapper;
+﻿using LeaveManagementSystem.Web.Services;
 using LeaveManagementSystem.Web.ViewModels;
-using LeaveManagementSystem.Web.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -77,7 +75,7 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound();
             }
-            
+
             return View(leaveType);
         }
 
@@ -126,7 +124,7 @@ namespace LeaveManagementSystem.Web.Controllers
             }
 
             var leaveType = await _leaveTypesService.Get<LeaveTypeReadOnlyViewModel>(id.Value);
-            
+
             if (leaveType == null)
             {
                 return NotFound();
