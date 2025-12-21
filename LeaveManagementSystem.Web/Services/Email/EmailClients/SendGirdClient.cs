@@ -2,7 +2,7 @@
 using SendGrid.Helpers.Mail;
 using SendGrid;
 
-namespace LeaveManagementSystem.Web.Services.EmailClients
+namespace LeaveManagementSystem.Web.Services.Email.EmailClients
 {
     public class SendGirdClient(IConfiguration _configuration, ILogger<EmailSender> _logger) : IEmailSender
     {

@@ -1,6 +1,6 @@
 ﻿using LeaveManagementSystem.Web.ViewModels;
 
-namespace LeaveManagementSystem.Web.Services
+namespace LeaveManagementSystem.Web.Services.LeaveTypes
 {
     public interface ILeaveTypesService
     {
