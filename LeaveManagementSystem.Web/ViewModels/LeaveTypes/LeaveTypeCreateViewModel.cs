@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LeaveManagementSystem.Web.ViewModels
+namespace LeaveManagementSystem.Web.ViewModels.LeaveTypes
 {
-    public class LeaveTypeEditViewModel
+    public class LeaveTypeCreateViewModel
     {
-        public int Id { get; set; }
-
         [Required]
         [Length(4, 150, ErrorMessage = "You have violated the length requirements")]
         public string Name { get; set; } = string.Empty;

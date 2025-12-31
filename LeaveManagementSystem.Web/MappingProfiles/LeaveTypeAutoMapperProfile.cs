@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LeaveManagementSystem.Web.Data;
-using LeaveManagementSystem.Web.ViewModels;
+using LeaveManagementSystem.Web.ViewModels.LeaveAllocations;
+using LeaveManagementSystem.Web.ViewModels.LeaveTypes;
 
 namespace LeaveManagementSystem.Web.MappingProfiles
 {
@@ -9,6 +9,8 @@ namespace LeaveManagementSystem.Web.MappingProfiles
         public LeaveTypeAutoMapperProfile()
         {
             CreateMap<LeaveType, LeaveTypeReadOnlyViewModel>();
+            CreateMap<LeaveType, LeaveAllocationEditViewModel>();
+            CreateMap<LeaveType, LeaveTypeCreateViewModel>().ReverseMap();
             CreateMap<LeaveType, LeaveTypeEditViewModel>().ReverseMap();
         }
     }

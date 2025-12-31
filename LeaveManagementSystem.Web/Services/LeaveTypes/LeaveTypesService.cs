@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using LeaveManagementSystem.Web.ViewModels;
+using LeaveManagementSystem.Web.ViewModels.LeaveTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagementSystem.Web.Services.LeaveTypes

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LeaveManagementSystem.Web.Data;
-using LeaveManagementSystem.Web.ViewModels;
+using LeaveManagementSystem.Web.ViewModels.LeaveAllocations;
+using LeaveManagementSystem.Web.ViewModels.Periods;
 
 namespace LeaveManagementSystem.Web.MappingProfiles
 {
@@ -9,6 +9,7 @@ namespace LeaveManagementSystem.Web.MappingProfiles
         public LeaveAllocationAutoMapperProfile()
         {
             CreateMap<LeaveAllocation, LeaveAllocationViewModel>();
+            CreateMap<ApplicationUser, EmployeeListViewModel>();
             CreateMap<Period, PeriodViewModel>().ReverseMap();
         }
     }

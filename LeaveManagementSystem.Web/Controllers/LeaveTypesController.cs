@@ -1,7 +1,5 @@
-﻿using LeaveManagementSystem.Web.Services;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
-using LeaveManagementSystem.Web.ViewModels;
-using Microsoft.AspNetCore.Mvc;
+﻿using LeaveManagementSystem.Web.Services.LeaveTypes;
+using LeaveManagementSystem.Web.ViewModels.LeaveTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagementSystem.Web.Controllers

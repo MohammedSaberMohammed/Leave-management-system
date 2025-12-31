@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LeaveManagementSystem.Web.ViewModels
+namespace LeaveManagementSystem.Web.ViewModels.LeaveTypes
 {
     public class LeaveTypeReadOnlyViewModel
     {

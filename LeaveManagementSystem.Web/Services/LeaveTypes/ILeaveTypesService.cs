@@ -1,4 +1,4 @@
-﻿using LeaveManagementSystem.Web.ViewModels;
+﻿using LeaveManagementSystem.Web.ViewModels.LeaveTypes;
 
 namespace LeaveManagementSystem.Web.Services.LeaveTypes
 {

@@ -38,9 +38,19 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-area="" asp-controller="Periods" asp-action="Index">Periods</a>
+                                    </li>                    
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="LeaveAllocation" asp-action="Index">Employees</a>
                                     </li>
                                 </ul>
                             </div>
+                        }
+                        
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="LeaveAllocation" asp-action="Details">View Allocations</a>
+                            </li>
                         }
                     </ul>
                     
