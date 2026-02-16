@@ -103,16 +103,16 @@ public class LeaveAllocationsService(
 
     public async Task EditAllocation(LeaveAllocationEditViewModel allocationEditViewModel)
     {
-        var leaveAllocation = await GetEmployeeAllocation(allocationEditViewModel.Id);
+        // var leaveAllocation = await GetEmployeeAllocation(allocationEditViewModel.Id);
+        //
+        // if (leaveAllocation == null)
+        // {
+        //     throw new Exception("Allocation not found");
+        // }
+        //
+        // leaveAllocation.Days = allocationEditViewModel.Days;
 
-        if (leaveAllocation == null)
-        {
-            throw new Exception("Allocation not found");
-        }
-        
-        leaveAllocation.Days = allocationEditViewModel.Days;
-
-        _context.Update(leaveAllocation);
+        // _context.Update(leaveAllocation);
 
         // LeaveAllocation leaveAllocation = new LeaveAllocation()
         // {

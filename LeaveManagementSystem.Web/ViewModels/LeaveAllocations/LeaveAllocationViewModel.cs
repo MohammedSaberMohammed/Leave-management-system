@@ -6,7 +6,7 @@ namespace LeaveManagementSystem.Web.ViewModels.LeaveAllocations;
 
 public class LeaveAllocationViewModel
 {
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     
     [Display(Name = "Number Of Days")]
     public int Days { get; set; }
