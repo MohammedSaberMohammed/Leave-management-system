@@ -22,4 +22,12 @@
     <PackageReference Include="SendGrid" Version="9.29.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="Views\LeaveRequests\Create.cshtml" />
+    <AdditionalFiles Include="Views\LeaveRequests\Delete.cshtml" />
+    <AdditionalFiles Include="Views\LeaveRequests\Details.cshtml" />
+    <AdditionalFiles Include="Views\LeaveRequests\Edit.cshtml" />
+    <AdditionalFiles Include="Views\LeaveRequests\Index.cshtml" />
+  </ItemGroup>
+
 </Project>
