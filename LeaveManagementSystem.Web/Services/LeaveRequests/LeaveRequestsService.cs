@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using LeaveManagementSystem.Web.Services.LeaveAllocations;
+using LeaveManagementSystem.Web.Services.Users;
+using LeaveManagementSystem.Web.ViewModels.LeaveAllocations;
 using LeaveManagementSystem.Web.ViewModels.LeaveRequests;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,80 +10,158 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests;
 public class LeaveRequestsService(
     IMapper _mapper,
     ApplicationDbContext _context, 
-    IHttpContextAccessor _httpContextAccessor, 
-    UserManager<ApplicationUser> _userManager
-    ) : ILeaveRequestsService
+    IUsersService _userService,
+    ILeaveAllocationsService _leaveAllocationService
+        ) : ILeaveRequestsService
 {
     public async Task CreateLeaveRequest(LeaveRequestCreateViewModel model)
     {
         var leaveRequest = _mapper.Map<LeaveRequest>(model);
         // Todo: Fix param overload
-        var user = await GetUserOrDefaultAsync(string.Empty);
+        var user = await _userService.GetLoggedInUser();
         
         leaveRequest.EmployeeId = user.Id;
-        leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatus.Pending;
+        leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatusEnum.Pending;
         
         _context.LeaveRequests.Add(leaveRequest);
         
-        var numberOfDays = model.EndDate.DayNumber - model.StartDate.DayNumber;
-        var allocationToDeduct = await _context.LeaveAllocations
-            .FirstAsync(l => l.LeaveTypeId == model.LeaveTypeId && l.EmployeeId == user.Id);
+        await UpdateAllocationDays(leaveRequest, true);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task<EmployeeLeaveRequestListViewModel> AdminGetAllLeaveRequests()
+    {
+        var leaveRequests = await _context.LeaveRequests.Include(l => l.LeaveType).ToListAsync();
+
+        var leaveRequestsViewModels = leaveRequests.Select(q => new LeaveRequestReadOnlyViewModel
+        {
+            Id = q.Id,
+            StartDate = q.StartDate,
+            EndDate = q.EndDate,
+            LeaveType = q.LeaveType.Name,
+            NumberOfDays = q.EndDate.DayNumber - q.StartDate.DayNumber,
+            LeaveRequestStatus = (LeaveRequestStatusEnum)q.LeaveRequestStatusId,
+        }).ToList();
+
+        var model = new EmployeeLeaveRequestListViewModel
+        {
+            LeaveRequests = leaveRequestsViewModels,
+            TotalRequests = leaveRequests.Count,
+            ApprovedRequests = leaveRequests.Count(q => q.LeaveRequestStatusId == (int)LeaveRequestStatusEnum.Approved),
+            PendingRequests = leaveRequests.Count(q => q.LeaveRequestStatusId == (int)LeaveRequestStatusEnum.Pending),
+            DeclinedRequests = leaveRequests.Count(q => q.LeaveRequestStatusId == (int)LeaveRequestStatusEnum.Canceled)
+        };
         
-        allocationToDeduct.Days -= numberOfDays;
-        // _context.LeaveAllocations.Update(allocationToDeduct);
+        return model;
+    }
+    
+    public async Task<List<LeaveRequestReadOnlyViewModel>> GetEmployeeLeaveRequests()
+    {
+        var user = await _userService.GetLoggedInUser();
+        var leaveRequests = await _context.LeaveRequests
+            .Include(l => l.LeaveType)
+            .Where(r => r.EmployeeId == user.Id)
+            .Select(q => new LeaveRequestReadOnlyViewModel
+            {
+                Id = q.Id,
+                StartDate = q.StartDate,
+                EndDate = q.EndDate,
+                LeaveType = q.LeaveType.Name,
+                NumberOfDays = q.EndDate.DayNumber - q.StartDate.DayNumber,
+                LeaveRequestStatus = (LeaveRequestStatusEnum)q.LeaveRequestStatusId,
+            })
+            .ToListAsync();
+
+        return leaveRequests;
+    }
+
+    public async Task CancelLeaveRequest(int leaveRequestId)
+    {
+        var leaveRequest = await _context.LeaveRequests.FindAsync(leaveRequestId);
+        leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatusEnum.Canceled;
         
+        await UpdateAllocationDays(leaveRequest, false);
         await _context.SaveChangesAsync();
     }
 
-    public Task<EmployeeLeaveRequestListViewModel> GetEmployeeLeaveRequests(string userId)
+    public async Task ReviewLeaveRequest(int leaveRequestId, bool approved)
     {
-        throw new NotImplementedException();
+        var user = await _userService.GetLoggedInUser();
+        var leaveRequest = await _context.LeaveRequests.FindAsync(leaveRequestId);
+        
+        leaveRequest.ReviewerId = user.Id;
+        leaveRequest.LeaveRequestStatusId = approved ? (int)LeaveRequestStatusEnum.Approved : (int)LeaveRequestStatusEnum.Declined;
+
+        if (!approved)
+        {
+            await UpdateAllocationDays(leaveRequest, false);
+        }
+
+        await _context.SaveChangesAsync();
     }
 
-    public Task<LeaveRequestListViewModel> GetAllLeaveRequests()
+    public async Task<ReviewLeaveRequestViewModel> GetLeaveRequestForReview(int id)
     {
-        throw new NotImplementedException();
-    }
+        var leaveRequest = await _context.LeaveRequests
+            .Include(q => q.LeaveType)
+            .FirstAsync(q => q.Id == id);
+        
+        var user = await _userService.GetUserById(leaveRequest.EmployeeId);
 
-    public Task CancelLeaveRequest(LeaveRequestCreateViewModel model)
-    {
-        throw new NotImplementedException();
-    }
+        var model = new ReviewLeaveRequestViewModel
+        {
+            Id = leaveRequest.Id,
+            StartDate = leaveRequest.StartDate,
+            EndDate = leaveRequest.EndDate,
+            LeaveType = leaveRequest.LeaveType.Name,
+            RequestComments = leaveRequest.RequestComments,
+            NumberOfDays = leaveRequest.EndDate.DayNumber - leaveRequest.StartDate.DayNumber,
+            LeaveRequestStatus = (LeaveRequestStatusEnum)leaveRequest.LeaveRequestStatusId,
+            Employee = new EmployeeListViewModel
+            {
+                Id = leaveRequest.EmployeeId,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            }
+        };
 
-    public Task<LeaveRequestListViewModel> GetLeaveRequests()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task CancelLeaveRequest(int leaveRequestId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task ReviewLeaveRequest(ReviewLeaveRequestViewModel model)
-    {
-        throw new NotImplementedException();
+        return model;
     }
 
     public async Task<bool> RequestDatesExceedAllocation(LeaveRequestCreateViewModel model)
     {
-        // Todo: Fix param overload
-        var user = await GetUserOrDefaultAsync(string.Empty);
+        var user = await _userService.GetLoggedInUser();
+        var currentDate = DateTime.Now;
+        var period = await _context.Periods.SingleAsync(p => p.EndDate.Year == currentDate.Year);
         var allocation = await _context.LeaveAllocations
-            .FirstAsync(l => l.LeaveTypeId == model.LeaveTypeId && l.EmployeeId == user.Id);
+            .FirstAsync(l => l.LeaveTypeId == model.LeaveTypeId 
+                             && l.EmployeeId == user.Id
+                             && l.PeriodId == period.Id);
         var deductedDays = model.EndDate.DayNumber - model.StartDate.DayNumber;
         
         return deductedDays > allocation.Days;
     }
 
-    private async Task<ApplicationUser> GetUserOrDefaultAsync(string? userId)
+    private async Task UpdateAllocationDays(LeaveRequest leaveRequest, bool deductDays)
     {
-        if (string.IsNullOrEmpty(userId))
+        var allocation = await _leaveAllocationService.GetCurrentAllocation(leaveRequest.LeaveTypeId, leaveRequest.EmployeeId);
+        var numberOfDays = CalculateDays(leaveRequest.StartDate, leaveRequest.EndDate);
+
+        if (deductDays)
         {
-            return await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            allocation.Days -= numberOfDays;
+        }
+        else
+        {
+            allocation.Days += numberOfDays;
         }
         
-        return await _userManager.FindByIdAsync(userId);
+        _context.Entry(allocation).State = EntityState.Modified;
     }
-    
+
+    private int CalculateDays(DateOnly start, DateOnly end)
+    {
+        return end.DayNumber - start.DayNumber;
+    }
 }

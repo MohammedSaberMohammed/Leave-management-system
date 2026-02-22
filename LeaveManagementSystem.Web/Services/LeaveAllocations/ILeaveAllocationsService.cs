@@ -10,4 +10,5 @@ public interface ILeaveAllocationsService
     Task<LeaveAllocationEditViewModel> GetEmployeeAllocation(string allocationId);
     Task<List<EmployeeListViewModel>> GetEmployees();
     Task EditAllocation(LeaveAllocationEditViewModel allocationEditViewModel);
+    Task<LeaveAllocation> GetCurrentAllocation(int leaveTypeId, string employeeId);
 }

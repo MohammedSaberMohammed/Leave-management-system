@@ -7,17 +7,17 @@ namespace LeaveManagementSystem.Web.ViewModels.LeaveRequests;
 public class LeaveRequestCreateViewModel : IValidatableObject
 {
     [DisplayName("Start Date")]
-    [Microsoft.Build.Framework.Required]
+    [Required]
     public DateOnly StartDate { get; set; }
     
     
     [DisplayName("End Date")]
-    [Microsoft.Build.Framework.Required]
+    [Required]
     public DateOnly EndDate { get; set; }
     
 
     [DisplayName("Desired Leave Type")]
-    [Microsoft.Build.Framework.Required]
+    [Required]
     public int LeaveTypeId { get; set; }
     
     [DisplayName("Additional Information")]

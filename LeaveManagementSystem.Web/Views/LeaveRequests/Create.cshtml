@@ -53,4 +53,17 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(function() {
+            const calendarOptions = {
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+            }
+            $("#StartDate").datepicker(calendarOptions);
+            $("#EndDate").datepicker(calendarOptions);
+        }) 
+        
+    </script>
 }

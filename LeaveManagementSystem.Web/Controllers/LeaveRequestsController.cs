@@ -15,14 +15,16 @@ public class LeaveRequestsController(
     // Employee Requests List Page
     public async Task<IActionResult> Index()
     {
-        return View();
+        var model = await _leaveRequestsService.GetEmployeeLeaveRequests();
+        
+        return View(model);
     }
 
     // Employee Create Request Page
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(int? leaveTypeId)
     {
         var leaveTypes = await _leaveTypesService.GetAll();
-        var leaveTypesList = new SelectList(leaveTypes, "Id", "Name");
+        var leaveTypesList = new SelectList(leaveTypes, "Id", "Name", leaveTypeId);
         var model = new LeaveRequestCreateViewModel()
         {
             StartDate = DateOnly.FromDateTime(DateTime.Now),
@@ -60,28 +62,33 @@ public class LeaveRequestsController(
     // Employee Cancel Request
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Cancel(int leaveRequestId)
+    public async Task<IActionResult> Cancel(int id)
     {
-        return View();
+        await _leaveRequestsService.CancelLeaveRequest(id);
+        return RedirectToAction(nameof(Index));
     }
     
-    // Admin/Supervisor Review Requests
+    [Authorize(Roles = $"{Roles.Administrator}, {Roles.Supervisor}")]
     public async Task<IActionResult> ListRequests()
     {
-        return View();
+        var model = await _leaveRequestsService.AdminGetAllLeaveRequests();
+        return View(model);
     }
     
-    // Admin/Supervisor Review Requests
-    public async Task<IActionResult> Review(int leaveRequestId)
+    [Authorize(Roles = $"{Roles.Administrator}, {Roles.Supervisor}")]
+    public async Task<IActionResult> Review(int id)
     {
-        return View();
+        var model = await _leaveRequestsService.GetLeaveRequestForReview(id);
+        return View(model);
     }
     
-    // Admin/Supervisor Review Requests
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Review()
+    [Authorize(Roles = $"{Roles.Administrator}, {Roles.Supervisor}")]
+    public async Task<IActionResult> Review(int id, bool approved)
     {
-        return View();
+        await _leaveRequestsService.ReviewLeaveRequest(id, approved);
+        
+        return RedirectToAction(nameof(ListRequests));
     }
 }
