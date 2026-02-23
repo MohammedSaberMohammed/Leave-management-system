@@ -1,7 +1,6 @@
-using LeaveManagementSystem.Web.Services.LeaveAllocations;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
-using LeaveManagementSystem.Web.ViewModels.LeaveAllocations;
-using Microsoft.AspNetCore.Mvc;
+using LeaveManagementSystem.Application.Services.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
+using LeaveManagementSystem.Application.ViewModels.LeaveAllocations;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -15,10 +14,10 @@ namespace LeaveManagementSystem.Web.Controllers
         public async Task<ActionResult> Index()
         {
             var employees = await _leaveAllocationsService.GetEmployees();
-            
+
             return View(employees);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Roles.Administrator)]
@@ -27,11 +26,11 @@ namespace LeaveManagementSystem.Web.Controllers
             await _leaveAllocationsService.AllocateLeave(id);
             return RedirectToAction(nameof(Details), new { userId = id });
         }
-        
+
         public async Task<ActionResult> Details(string? userId)
         {
             var employeeAllocationViewModel = await _leaveAllocationsService.GetEmployeeAllocations(userId);
-            
+
             return View(employeeAllocationViewModel);
         }
 
@@ -48,10 +47,10 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound();
             }
-            
+
             return View(allocation);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Roles.Administrator)]
@@ -65,14 +64,14 @@ namespace LeaveManagementSystem.Web.Controllers
             if (ModelState.IsValid)
             {
                 await _leaveAllocationsService.EditAllocation(allocation);
-            
+
                 return RedirectToAction(nameof(Details), new { userId = allocation.Employee.Id });
             }
 
             var days = allocation.Days;
             allocation = await _leaveAllocationsService.GetEmployeeAllocation(allocation.Id);
             allocation.Days = days;
-            
+
             return View(allocation);
         }
     }

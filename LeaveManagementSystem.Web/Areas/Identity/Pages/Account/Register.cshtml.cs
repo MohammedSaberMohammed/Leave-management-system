@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
-using LeaveManagementSystem.Web.Services.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveAllocations;
 
 namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
 {
