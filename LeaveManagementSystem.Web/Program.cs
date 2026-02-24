@@ -6,6 +6,7 @@ using LeaveManagementSystem.Application.Services.LeaveTypes;
 using LeaveManagementSystem.Application.Services.Periods;
 using LeaveManagementSystem.Application.Services.Users;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 ApplicationServiceRegistration.AddApplicationServices(builder.Services);
 DataServiceRegistration.AddDataServices(builder.Services, builder.Configuration);
 
-builder.Services.AddHttpContextAccessor();
+builder.Host.UseSerilog((ctx, config) =>
+{
+    config.WriteTo.Console()
+        .ReadFrom.Configuration(ctx.Configuration);
+});
 
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
